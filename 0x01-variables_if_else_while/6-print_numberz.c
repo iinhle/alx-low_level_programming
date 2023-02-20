@@ -3,6 +3,7 @@
 /**
  * main - Entry point
  * Description: prints char belw 10
+ * Return: Always 0 (Success)
  */
 int main(void)
 {
