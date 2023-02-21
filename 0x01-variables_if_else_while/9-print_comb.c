@@ -15,7 +15,7 @@ putchar(i);
 
 if (i != '9')
 {
-putchar9',');
+putchar(',');
 putchar('~');
 }
 }
