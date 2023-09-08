@@ -1,57 +1,53 @@
 #include "hash_tables.h"
 
 /**
- * hash_table_set - short description
+ * hash_table_set - Add or update an element in a hash table.
+ * @ht: A pointer to the hash table.
+ * @key: The key to add - cannot be an empty string.
+ * @value: The value associated with key.
  *
- * Description: long description
- *
- * @ht: hash table
- * @key: key
- * @value: value
- *
- * Return: return description
+ * Return: Upon failure - 0.
+ *         Otherwise - 1.
  */
-
 int hash_table_set(hash_table_t *ht, const char *key, const char *value)
 {
-	unsigned long int index = 0;
-	hash_node_t *new_node = NULL, *old_head = NULL;
+	hash_node_t *new;
+	char *value_copy;
+	unsigned long int index, i;
 
-	if (key == NULL || value == NULL || ht == NULL)
+	if (ht == NULL || key == NULL || *key == '\0' || value == NULL)
 		return (0);
-	if (strlen(key) == 0)
+
+	value_copy = strdup(value);
+	if (value_copy == NULL)
 		return (0);
-	new_node = (hash_node_t *) malloc(sizeof(hash_node_t));
-	if (new_node == NULL)
-		return (0);
-	index = key_index((const unsigned char *) key, ht->size);
-	new_node->key = (char *) strdup(key);
-	new_node->value = (char *) strdup(value);
-	new_node->next = NULL;
-	if ((ht->array)[index] == NULL)
+
+	index = key_index((const unsigned char *)key, ht->size);
+	for (i = index; ht->array[i]; i++)
 	{
-		(ht->array)[index] = new_node;
-		return (1);
-	}
-	else
-	{
-		old_head = (ht->array)[index];
-		while (old_head)
+		if (strcmp(ht->array[i]->key, key) == 0)
 		{
-			if (strcmp(old_head->key, key) == 0)
-			{
-				free(old_head->value);
-				old_head->value = (char *) strdup(value);
-				free(new_node->key);
-				free(new_node->value);
-				free(new_node);
-				return (1);
-			}
-			old_head = old_head->next;
+			free(ht->array[i]->value);
+			ht->array[i]->value = value_copy;
+			return (1);
 		}
-		old_head = (ht->array)[index];
-		new_node->next = old_head;
-		(ht->array)[index] = new_node;
-		return (1);
 	}
+
+	new = malloc(sizeof(hash_node_t));
+	if (new == NULL)
+	{
+		free(value_copy);
+		return (0);
+	}
+	new->key = strdup(key);
+	if (new->key == NULL)
+	{
+		free(new);
+		return (0);
+	}
+	new->value = value_copy;
+	new->next = ht->array[index];
+	ht->array[index] = new;
+
+	return (1);
 }
